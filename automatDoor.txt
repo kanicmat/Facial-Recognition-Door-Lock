@@ -1,0 +1,92 @@
+﻿package eecs1021;
+
+
+
+
+import org.opencv.core.Core;
+import org.firmata4j.Pin;
+import org.firmata4j.firmata.FirmataDevice;
+
+
+
+
+import javax.swing.*;
+import java.io.IOException;
+import java.io.InterruptedIOException;
+import java.util.Timer;
+import java.util.TimerTask;
+
+
+
+
+public class automatDoor {
+   static final int D3 = 3; // servo sensor that controls the doors lock
+   static final int D4= 4;// led light pin
+
+
+
+
+   public static void main(String[] args) throws InterruptedIOException, IOException {
+       try {
+
+
+
+
+           System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+
+
+
+
+           var device = new FirmataDevice("COM9");
+           device.start();
+           device.ensureInitializationIsDone();
+
+
+
+
+           // Setting up pins
+           Pin led = device.getPin(D4);
+           led.setMode(Pin.Mode.OUTPUT);
+
+
+
+
+
+
+
+
+           Pin servoPin2 = device.getPin(D3);
+           servoPin2.setMode(Pin.Mode.SERVO);
+
+
+
+
+           InitiateGraph initiateGraph = new InitiateGraph();
+
+
+
+
+           // Create a timer task for opening the door
+           TimerTask openDoorTask = new OpenDoorTask(led, servoPin2, initiateGraph);
+           // Start a timer
+           Timer timer = new Timer();
+           timer.schedule(openDoorTask, 0, 1000);
+
+
+
+
+           // Create a JFrame to hold the chart panel
+           JFrame frame = new JFrame("Soil Moisture Monitoring");
+           frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+           frame.getContentPane().add(initiateGraph.getChartPanel()); // Add the chart panel to the frame
+           frame.pack();
+           frame.setVisible(true);
+
+
+
+
+       } catch (IOException | InterruptedException e) {
+           e.printStackTrace();
+       }
+   }
+}

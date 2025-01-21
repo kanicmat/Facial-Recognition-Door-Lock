@@ -1,0 +1,75 @@
+﻿package eecs1021;
+
+
+
+
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+
+
+
+
+public class OpenDoorTaskTest {
+
+
+
+
+   private static final int DOOR_LOCKED_ANGLE = 90;
+   private static final int DOOR_UNLOCKED_ANGLE = 180;
+
+
+
+
+   @Test
+   public void testConvertAngle_LockedDoor() {
+       // Test when the door is locked (angle = 90)
+       int angleLocked = 90;
+       int expectedResultLocked = 0; // Expecting 0 when the door is locked
+       assertEquals("Error: Incorrect conversion when the door is locked.", expectedResultLocked, convertAngle(angleLocked));
+   }
+
+
+
+
+   @Test
+   public void testConvertAngle_UnlockedDoor() {
+       // Test when the door is unlocked (angle = 180)
+       int angleUnlocked = 180;
+       int expectedResultUnlocked = 1; // Expecting 1 when the door is unlocked
+       assertEquals("Error: Incorrect conversion when the door is unlocked.", expectedResultUnlocked, convertAngle(angleUnlocked));
+   }
+
+
+
+
+   @Test
+   public void testConvertAngle_OutOfRange() {
+       // Test when the angle is out of range (e.g., negative angle)
+       int angleOutOfRange = -10;
+       int expectedResultOutOfRange = -1; // Expecting -1 for out-of-range angles
+       assertEquals("Error: Incorrect conversion for out-of-range angle.", expectedResultOutOfRange, convertAngle(angleOutOfRange));
+   }
+
+
+
+
+   private int convertAngle(int angle) {
+       final int DOOR_LOCKED_ANGLE = 90;
+       final int DOOR_UNLOCKED_ANGLE = 180;
+       int convertedValue;
+
+
+
+
+       if (angle < 0 || angle > 180) {
+           convertedValue = -1; // Handle out-of-range angles
+       } else if (angle == DOOR_LOCKED_ANGLE) {
+           convertedValue = 0; // Convert locked door angle to 0
+       } else if (angle == DOOR_UNLOCKED_ANGLE) {
+           convertedValue = 1; // Convert unlocked door angle to 1
+       } else {
+           convertedValue = -1; // Handle other cases
+       }
+       return convertedValue;
+   }
+}

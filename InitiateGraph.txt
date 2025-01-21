@@ -1,0 +1,106 @@
+﻿package eecs1021;
+
+
+
+
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
+import org.jfree.data.xy.XYSeries;
+import org.jfree.data.xy.XYSeriesCollection;
+
+
+
+
+import javax.swing.*;
+import java.awt.*;
+import java.util.ArrayList;
+
+
+
+
+public class InitiateGraph {
+   private final XYSeries sensorSeries;
+   private final XYSeriesCollection dataset;
+   private final JFreeChart chart;
+   private final ChartPanel chartPanel;
+
+
+
+
+   public InitiateGraph() {
+       // Initialize the series for the sensor value vs. time graph
+       sensorSeries = new XYSeries("Rotary Sensor Value vs. Time");
+
+
+
+
+       // Add the series to the dataset
+       dataset = new XYSeriesCollection();
+       dataset.addSeries(sensorSeries);
+
+
+
+
+       // Create the chart
+       chart = ChartFactory.createXYLineChart(
+               "Rotary Sensor Value vs. Time", // Chart title
+               "Time", // X-Axis label
+               "Rotary Sensor Value", // Y-Axis label
+               dataset // Dataset
+       );
+
+
+
+
+       // Customize chart appearance if necessary
+       chart.setBackgroundPaint(Color.white);
+
+
+
+
+       // Customize the range of the y-axis to always show 0-1
+       XYPlot plot = (XYPlot) chart.getPlot();
+       plot.getRangeAxis().setRange(0, 1);
+
+
+
+
+       // Make the points distinct using shapes
+       XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer();
+       renderer.setSeriesShapesVisible(0, true); // Show shapes for series 0 (sensor value vs. time)
+       plot.setRenderer(renderer);
+
+
+
+
+       // Create and customize the chart panel
+       chartPanel = new ChartPanel(chart);
+       chartPanel.setPreferredSize(new Dimension(800, 600));
+   }
+
+
+
+
+   public void updateGraph(ArrayList<Integer> convertedValues) {
+       // Clear existing data from the series
+       sensorSeries.clear();
+
+
+
+
+       // Add the new converted values to the series
+       for (int i = 0; i < convertedValues.size(); i++) {
+           sensorSeries.add(i, convertedValues.get(i));
+       }
+   }
+
+
+
+
+   public JPanel getChartPanel() {
+       return chartPanel;
+   }
+}

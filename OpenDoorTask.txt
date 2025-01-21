@@ -1,0 +1,156 @@
+﻿package eecs1021;
+
+
+
+
+import org.opencv.core.Mat;
+import org.opencv.core.MatOfRect;
+import org.opencv.objdetect.CascadeClassifier;
+import org.opencv.videoio.VideoCapture;
+import org.firmata4j.Pin;
+import java.util.ArrayList;
+import java.io.IOException;
+import java.util.TimerTask;
+import java.util.Timer;
+
+
+
+
+
+
+
+
+public class OpenDoorTask extends TimerTask {
+   private final Pin led;
+   private final Pin servoPin2;
+   private final InitiateGraph initiateGraph;
+   private boolean doorLocked = true;
+
+
+
+
+   private static final int DOOR_LOCKED_ANGLE = 90;
+   private static final int DOOR_UNLOCKED_ANGLE = 180;
+
+
+
+
+   private ArrayList<Integer> convertedAngles = new ArrayList<>();
+
+
+
+
+   public OpenDoorTask(Pin led, Pin servoPin2, InitiateGraph initiateGraph) {
+       this.led = led;
+       this.servoPin2 = servoPin2;
+       this.initiateGraph = initiateGraph;
+   }
+
+
+
+
+   @Override
+   public void run() {
+       // Initialize video capture device
+       VideoCapture capture = new VideoCapture(0);
+
+
+
+
+       // Load cascade classifier for face detection
+       CascadeClassifier faceCascade = new CascadeClassifier();
+       faceCascade.load("src/eecs1021/haarcascade_frontalface_default.xml");
+
+
+
+
+       Mat frame = new Mat();
+       capture.read(frame);
+
+
+
+
+       // Detect faces
+       MatOfRect faces = new MatOfRect();
+       faceCascade.detectMultiScale(frame, faces);
+
+
+
+
+       try {
+           if (!faces.empty() && doorLocked) {
+               doorLocked = false;
+               servoPin2.setValue(DOOR_UNLOCKED_ANGLE); // Unlock door
+               led.setValue(1); // Turn on LED
+               System.out.println("Door Unlocked");
+
+
+
+
+
+
+
+
+           } else if (faces.empty() && !doorLocked) {
+               doorLocked = true;
+               servoPin2.setValue(DOOR_LOCKED_ANGLE); // Lock door
+               led.setValue(0); // Turn off LED
+               System.out.println("Door Locked");
+           }
+       } catch (IOException e) {
+           e.printStackTrace();
+       }
+
+
+
+
+       // Get the current angle of the servo motor
+       long currentAngleLong = servoPin2.getValue();
+
+
+
+
+// Convert the angle to 0 or 1 (cast the long value to int)
+       int currentAngle = (int) currentAngleLong;
+
+
+
+
+       // Convert the angle to 0 or 1
+       int convertedAngle = convertAngle(currentAngle);
+
+
+
+
+       convertedAngles.add(convertedAngle);
+
+
+
+
+       initiateGraph.updateGraph(convertedAngles);
+
+
+
+
+       // Release video capture and clear faces
+       capture.release();
+       faces.release();
+   }
+   private int convertAngle(int angle) {
+       if (angle == DOOR_UNLOCKED_ANGLE) {
+           return 1; // door unlocked
+       } else if (angle == DOOR_LOCKED_ANGLE) {
+           return 0; // door locked
+       } else {
+           return -1; // handle other cases if needed
+       }
+   }
+
+
+
+
+
+
+
+
+}
